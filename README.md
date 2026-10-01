@@ -6,25 +6,26 @@
 ## 环境
 
 ```
-/home/fjc/miniconda3/envs/fjc/bin/python   # 已装好 numpy，直接用这个解释器
-/home/fjc/record_clip.py
+python3 record_clip.py   # 需要能 import numpy 的解释器（如有专门的 conda/venv 环境，用那个环境的 python）
 ```
 
-依赖：海康 MVS SDK（已装在 `/opt/MVS`）、ffmpeg（已装）、numpy（conda 环境已装）。
+依赖：海康 MVS SDK（Linux 典型装在 `/opt/MVS`，Windows 装在 MVS 安装目录下的
+`Samples/Python/MvImport`，装到别处要改脚本顶部 `MVS_IMPORT_CANDIDATES`）、
+ffmpeg（PATH 里能找到即可）、numpy。
 
 ## 常用命令
 
 **只录文件**：
 ```bash
-/home/fjc/miniconda3/envs/fjc/bin/python /home/fjc/record_clip.py \
-    --output /mnt/data/clip.mkv --duration 300 \
+python3 record_clip.py \
+    --output clip.mkv --duration 300 \
     --width 1024 --height 1024 --offset-x 100 --offset-y 0 \
     --decimation 2 --exposure-us 6500 --gamma 0.5
 ```
 
 **只推流，不落盘**（不传 `--output`）：
 ```bash
-/home/fjc/miniconda3/envs/fjc/bin/python /home/fjc/record_clip.py \
+python3 record_clip.py \
     --duration 300 \
     --width 1024 --height 1024 --offset-x 100 --offset-y 0 \
     --decimation 2 --exposure-us 6500 --gamma 0.5 \
@@ -33,8 +34,8 @@
 
 **录文件 + 同时推流**：
 ```bash
-/home/fjc/miniconda3/envs/fjc/bin/python /home/fjc/record_clip.py \
-    --output /mnt/data/clip.mkv --duration 300 \
+python3 record_clip.py \
+    --output clip.mkv --duration 300 \
     --width 1024 --height 1024 --offset-x 100 --offset-y 0 \
     --decimation 2 --exposure-us 6500 --gamma 0.5 \
     --rtsp-url rtsp://127.0.0.1:8554/live --preview-fps 8
@@ -42,14 +43,15 @@
 
 不传 `--duration` 就一直录/推到按 `Ctrl+C` 为止。
 
-**推流前必须先启动 MediaMTX**（已装在 `/home/fjc/mediamtx/`）：
+**推流前必须先起一个接受 RTSP 推流的服务器**，推荐 [MediaMTX](https://github.com/bluenviron/mediamtx)
+（单文件二进制，下载解压即可用默认配置启动）：
 ```bash
-cd /home/fjc/mediamtx && nohup ./mediamtx mediamtx.yml > mediamtx.log 2>&1 &
+./mediamtx mediamtx.yml &
 ```
-局域网内看直播：
-- VLC/ffplay：`rtsp://192.168.1.2:8554/live`
-- 浏览器 WebRTC（延迟最低）：`http://192.168.1.2:8889/live`
-- 浏览器 HLS（兼容性最好，延迟几秒）：`http://192.168.1.2:8888/live/index.m3u8`
+局域网内看直播（把 `<host>` 换成跑脚本那台机器的局域网 IP）：
+- VLC/ffplay：`rtsp://<host>:8554/live`
+- 浏览器 WebRTC（延迟最低）：`http://<host>:8889/live`
+- 浏览器 HLS（兼容性最好，延迟几秒）：`http://<host>:8888/live/index.m3u8`
 
 ## 参数说明
 
